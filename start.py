@@ -6,7 +6,12 @@ from datetime import datetime
 from termcolor import colored, cprint
 import subprocess
 
+# Uncomment the following to list all jobs (default)
 allJobs = Jobs.list(owner='*')
+
+# Uncomment the following line to list jobs by you only.
+# allJobs = Jobs.list()
+
 # Set up the variables
 goodCount = 0
 userAbend = 0
@@ -35,98 +40,93 @@ for job in allJobs:
   else:
     others += 1
 
-
-# Print banner
-# print(r'''
-#   ______    ______   _____ 
-#  |___  /   / / __ \ / ____|
-#     / /   / / |  | | (___  
-#    / /   / /| |  | |\___ \ 
-#   / /__ / / | |__| |____) |
-#  /_____/_/   \____/|_____/ 
-                           
-# ''')
-
 # Sample Format of raw_uptime:
 #  8 day(s), 13:28,  11 users,  load average: 0.00, 0.00, 0.00
 raw_uptime = str(subprocess.check_output(['uptime']))[13:-3]
 arr = raw_uptime.split(', ')
-print(arr)
-uptime_days = arr[0]
+uptime_days = arr[0][1:]
 uptime_hours = arr[1].split(':')[0]
 uptime_mins = arr[1].split(':')[1]
 user_count = arr[2][1:-5]
 load = raw_uptime.split(':')[2][1:]
 
-print(uptime_days, uptime_hours, uptime_mins, user_count, load)
+# Get other system details
+now = datetime.now()
+name = str(subprocess.check_output(['whoami']))[2:-3]
 
-# print('Breakdown:')
-# cprint('{:<8}'.format('ABEND') + '{:|<{num}}'.format('', num=round((systemAbend + userAbend) / jobCount * 100)), 'red')
-# cprint('{:<8}'.format('CC') + '{:|<{num}}'.format('', num=round(conditionCode / jobCount * 100)), 'yellow')
-# cprint('{:<8}'.format('Others') + '{:|<{num}}'.format('', num=round(others / jobCount * 100)), 'blue')
-# cprint('{:<8}'.format('Perfect') + '{:|<{num}}'.format('', num=round(goodCount / jobCount * 100)), 'green')
+# The following is used for printing:
+# Print banner
+cprint("""
+     ______    ______   _____ 
+    |___  /   / / __ \ / ____|
+       / /   / / |  | | (___  
+      / /   / /| |  | |\___ \ 
+     / /__ / / | |__| |____) |
+    /_____/_/   \____/|_____/ 
 
-# print(subprocess.check_output(['whoami']))
-# colors = ['red', 'green', 'yellow', 'blue', 'magenta', 'cyan']
-# count = 0
-# table_header = ['Sys Abend', 'User Abend', 'CC Err', 'Others', 'Good!', 'Total', 'Percentage']
-# percentage = round(goodCount / jobCount * 100, 2)
-# table_data = [systemAbend, userAbend, conditionCode, others, goodCount, jobCount, percentage]
-# dividers_len = 15 * len(table_header) + len(table_header) + 1
-# divider_format = "{:-^{num}}"
-# print(divider_format.format('', num = dividers_len))
+""", "blue", attrs=['bold'])
 
-# row_format ="{:^15}"
-# print('|', end='')
-# for header in table_header:
-#   cprint(row_format.format(header), colors[count % 6], end='')
-#   cprint('|', colors[count % 6], end='')
-#   count += 1
+# Set up the dict for basic system info and print them
+detailsDict = {
+  'Uptime': '{} {} hrs {} mins'.format(uptime_days, uptime_hours, uptime_mins), 
+  'Load': load, 
+  'User logins': user_count,
+  # dd/mm/YY H:M:S
+  'Date & Time': now.strftime("%d/%m/%Y %H:%M:%S")
+}
 
-# print('\n' + divider_format.format('', num = dividers_len))
-# print('|', end='')
+for detail in detailsDict.items():
+  cprint('{:.<15}: '.format(detail[0]), 'green', end='')
+  cprint(detail[1], 'cyan')
+# Add newline
+print('')
 
-# for data in table_data:
-#   cprint(row_format.format(data), colors[count % 6], end='')
-#   cprint('|', colors[count % 6], end='')
-#   count += 1
-# print('\n' + divider_format.format('', num = dividers_len))
+# Set up the table headers and borders first
+colors = ['red', 'red', 'yellow', 'blue', 'green', 'white', 'white']
+count = 0
+table_header = ['Sys Abend', 'User Abend', 'CC Err', 'Others', 'Good!', 'Total', 'Percentage']
+percentage = round(goodCount / jobCount * 100, 2)
+table_data = [systemAbend, userAbend, conditionCode, others, goodCount, jobCount, percentage]
+# Need to add the number of dividers
+dividers_len = 15 * len(table_header) + len(table_header) + 1
 
+# Print the top border
+divider_format = "{:-^{num}}"
+print(divider_format.format('', num = dividers_len))
 
+# Print the header itself
+row_format ="{:^15}"
+# Fenceposting...
+print('|', end='')
+for header in table_header:
+  cprint(row_format.format(header), colors[count], end='')
+  cprint('|', colors[count % 6], end='')
+  count += 1
+print('\n' + divider_format.format('', num = dividers_len))
+print('|', end='')
 
+# Print the data row, again using fencepost technique
+count = 0
+for data in table_data:
+  cprint(row_format.format(data), colors[count], end='')
+  cprint('|', colors[count % 6], end='')
+  count += 1
+print('\n' + divider_format.format('', num = dividers_len), end='\n\n')
 
+# Print individual breakdown in a nice "bar" chart
+cprint('Breakdown:', 'white', attrs=['bold', 'underline'])
+cprint('{:<8}'.format('ABEND') + '{:|<{num}}'.format('', num=round((systemAbend + userAbend) / jobCount * 100)), 'red')
+cprint('{:<8}'.format('CC') + '{:|<{num}}'.format('', num=round(conditionCode / jobCount * 100)), 'yellow')
+cprint('{:<8}'.format('Others') + '{:|<{num}}'.format('', num=round(others / jobCount * 100)), 'blue')
+cprint('{:<8}'.format('Perfect') + '{:|<{num}}'.format('', num=round(goodCount / jobCount * 100)), 'green')
 
-
-
-
-# table = Texttable()
-# table.set_deco(Texttable.VLINES | Texttable.HEADER)
-# table_header = ['Sys Abend', 'User Abend', 'CC Err', 'Others', 'Good!', 'Total', 'Percentage']
-# table.set_cols_align(['c', 'c', 'c', 'c', 'c', 'c', 'c'])
-# table.set_cols_valign(['t', 't', 't', 't', 't', 't', 't'])
-# table.add_rows([table_header])
-
-# cprint(table.draw(), 'blue')
-# table.reset()
-# table.set_deco(Texttable.VLINES)
-# table.add_row([systemAbend, userAbend, conditionCode, others, goodCount, jobCount, goodCount / jobCount * 100])
-# cprint(table.draw(), 'red')
-
-# print('All jobs:', jobCount)
-# print('CC0000:', goodCount)
-# print('CC Others:', conditionCode)
-# print('ABEND SXXX:', systemAbend)
-# print('ABSEND UXXX:', userAbend)
-# print('Others:', others)
-
-# cprint('||||||||||||||||||', 'green')
-# cprint('|||||||||||||||||||||||||||', 'red')
-# starttime = time.time()
-# lines = '|'
-# while len(lines) < 6:
-#     cprint('\r' + lines, 'blue', end='')
-#     time.sleep(1.0 - (time.time() % 1.0))
-#     lines += '|'
-
-# print('')
-
+print("""
+_______________ 
+ Welcome back, 
+ {:^13}
+---------------
+       \   ,__,
+        \  (oo)____
+           (__)    )\\
+            ||--|| *
+""".format(name))
