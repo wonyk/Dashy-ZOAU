@@ -1,0 +1,6 @@
+{
+  "python.pythonPath": "c:\\Users\\Ying Keat\\AppData\\Local\\Programs\\Python\\Python37\\python.exe",
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": true,
+  "python.formatting.provider": "black"
+}
