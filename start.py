@@ -110,7 +110,7 @@ row_format ="{:^15}"
 print('|', end='')
 for header in table_header:
   cprint(row_format.format(header), colors[count], end='')
-  cprint('|', colors[count % 6], end='')
+  cprint('|', colors[count], end='')
   count += 1
 print('\n' + divider_format.format('', num = dividers_len))
 print('|', end='')
@@ -119,16 +119,33 @@ print('|', end='')
 count = 0
 for data in table_data:
   cprint(row_format.format(data), colors[count], end='')
-  cprint('|', colors[count % 6], end='')
+  cprint('|', colors[count], end='')
   count += 1
 print('\n' + divider_format.format('', num = dividers_len), end='\n\n')
 
 # Print individual breakdown in a nice "bar" chart
-cprint('Breakdown:', 'white', attrs=['bold', 'underline'])
-cprint('{:<8}'.format('ABEND') + '{:|<{num}}'.format('', num=round((systemAbend + userAbend) / jobCount * 100)), settings.systemAbendColor)
-cprint('{:<8}'.format('CC') + '{:|<{num}}'.format('', num=round(conditionCode / jobCount * 100)), settings.conditionCodeColor)
-cprint('{:<8}'.format('Others') + '{:|<{num}}'.format('', num=round(others / jobCount * 100)), settings.othersErrColor)
-cprint('{:<8}'.format('Perfect') + '{:|<{num}}'.format('', num=round(goodCount / jobCount * 100)), settings.goodJobsColor)
+chartDict = {
+  'ABEND': {
+    'num': round((systemAbend + userAbend) / jobCount * 100),
+    'color': settings.systemAbendColor
+  },
+  'CC': {
+    'num': round(conditionCode / jobCount * 100),
+    'color': settings.conditionCodeColor
+  },
+  'Others': {
+    'num': round(others / jobCount * 100),
+    'color': settings.othersErrColor}
+    ,
+  'Perfect': {
+    'num': round(goodCount / jobCount * 100),
+    'color': settings.goodJobsColor
+  }
+}
+
+cprint('Breakdown:', 'white', attrs=['underline'])
+for category in chartDict:
+  cprint('{:<8}'.format(category) + '{:|<{num}} {num}%'.format('', num=chartDict[category]['num']), chartDict[category]['color'])
 
 # Cowsay, as usual. A tradition.
 cprint("""
@@ -141,4 +158,3 @@ _______________
            (__)    )\\
             ||--|| *
 """.format(name), settings.cowsayColor)
-
