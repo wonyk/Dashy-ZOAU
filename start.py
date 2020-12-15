@@ -1,36 +1,22 @@
 #!/usr/bin/env python3
 
 #Import the Z Open Automation Utilities libraries as well as other libraries
-from zoautil_py import MVSCmd, Datasets, Jobs
-from zoautil_py.types import DDStatement
-# from datetime import datetime
+from zoautil_py import Datasets, Jobs
+from datetime import datetime
 from termcolor import colored, cprint
-import fire
 import subprocess
-# import time
-
-# Print banner
-# print(r'''
-#   ______    ______   _____ 
-#  |___  /   / / __ \ / ____|
-#     / /   / / |  | | (___  
-#    / /   / /| |  | |\___ \ 
-#   / /__ / / | |__| |____) |
-#  /_____/_/   \____/|_____/ 
-                           
-# ''')
 
 allJobs = Jobs.list(owner='*')
-# allJobs = Jobs.list()
 # Set up the variables
-jobCount = len(allJobs)
 goodCount = 0
 userAbend = 0
 systemAbend = 0
 conditionCode = 0
 others = 0
+jobCount = len(allJobs)
 
 # Check for the various kind of errors to provide an overview
+# Perform various calculations
 for job in allJobs:
   # Check Abend code
   if (job['status'] == 'ABEND'):
@@ -50,13 +36,37 @@ for job in allJobs:
     others += 1
 
 
-# print('Breakdown:')
-cprint('{:<8}'.format('ABEND') + '{:|<{num}}'.format('', num=round((systemAbend + userAbend) / jobCount * 100)), 'red')
-cprint('{:<8}'.format('CC') + '{:|<{num}}'.format('', num=round(conditionCode / jobCount * 100)), 'yellow')
-cprint('{:<8}'.format('Others') + '{:|<{num}}'.format('', num=round(others / jobCount * 100)), 'blue')
-cprint('{:<8}'.format('Perfect') + '{:|<{num}}'.format('', num=round(goodCount / jobCount * 100)), 'green')
+# Print banner
+# print(r'''
+#   ______    ______   _____ 
+#  |___  /   / / __ \ / ____|
+#     / /   / / |  | | (___  
+#    / /   / /| |  | |\___ \ 
+#   / /__ / / | |__| |____) |
+#  /_____/_/   \____/|_____/ 
+                           
+# ''')
 
-print(subprocess.check_output(['whoami']))
+# Sample Format of raw_uptime:
+#  8 day(s), 13:28,  11 users,  load average: 0.00, 0.00, 0.00
+raw_uptime = str(subprocess.check_output(['uptime']))[13:-3]
+arr = raw_uptime.split(', ')
+print(arr)
+uptime_days = arr[0]
+uptime_hours = arr[1].split(':')[0]
+uptime_mins = arr[1].split(':')[1]
+user_count = arr[2][1:-5]
+load = raw_uptime.split(':')[2][1:]
+
+print(uptime_days, uptime_hours, uptime_mins, user_count, load)
+
+# print('Breakdown:')
+# cprint('{:<8}'.format('ABEND') + '{:|<{num}}'.format('', num=round((systemAbend + userAbend) / jobCount * 100)), 'red')
+# cprint('{:<8}'.format('CC') + '{:|<{num}}'.format('', num=round(conditionCode / jobCount * 100)), 'yellow')
+# cprint('{:<8}'.format('Others') + '{:|<{num}}'.format('', num=round(others / jobCount * 100)), 'blue')
+# cprint('{:<8}'.format('Perfect') + '{:|<{num}}'.format('', num=round(goodCount / jobCount * 100)), 'green')
+
+# print(subprocess.check_output(['whoami']))
 # colors = ['red', 'green', 'yellow', 'blue', 'magenta', 'cyan']
 # count = 0
 # table_header = ['Sys Abend', 'User Abend', 'CC Err', 'Others', 'Good!', 'Total', 'Percentage']
@@ -120,7 +130,3 @@ print(subprocess.check_output(['whoami']))
 
 # print('')
 
-
-# print(Datasets.hlq())
-
-# print(Jobs.list(owner='*'))
