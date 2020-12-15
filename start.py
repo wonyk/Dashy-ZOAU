@@ -1,27 +1,37 @@
 #!/usr/bin/env python3
 
+# This python script is a simple tool to create a aesthetically pleasing information
+# banner when users login. It utilises colors to make the terminal look more pleasing
+# when logging into the USS. It pulls Job data using the ZOAU library.
+# To fine tune job settings and color choices, please proceed to settings.py
+
 #Import the Z Open Automation Utilities libraries as well as other libraries
 from zoautil_py import Datasets, Jobs
 from datetime import datetime
 from termcolor import colored, cprint
+import settings
 import subprocess
 
-# Uncomment the following to list all jobs (default)
-allJobs = Jobs.list(owner='*')
-
-# Uncomment the following line to list jobs by you only.
-# allJobs = Jobs.list()
-
 # Set up the variables
+allJobs = []
 goodCount = 0
 userAbend = 0
 systemAbend = 0
 conditionCode = 0
 others = 0
-jobCount = len(allJobs)
+
+# Compile job details based on settings
+if (type(settings.job_scope) == list):
+  if (len(settings.job_scope) != 0):
+    for user in settings.job_scope:
+      allJobs.extend(Jobs.list(owner=user))
+else:
+  allJobs = Jobs.list(owner='*')
 
 # Check for the various kind of errors to provide an overview
 # Perform various calculations
+jobCount = len(allJobs)
+
 for job in allJobs:
   # Check Abend code
   if (job['status'] == 'ABEND'):
@@ -64,7 +74,7 @@ cprint("""
      / /__ / / | |__| |____) |
     /_____/_/   \____/|_____/ 
 
-""", "blue", attrs=['bold'])
+""", settings.OSColor, attrs=['bold'])
 
 # Set up the dict for basic system info and print them
 detailsDict = {
@@ -76,13 +86,12 @@ detailsDict = {
 }
 
 for detail in detailsDict.items():
-  cprint('{:.<15}: '.format(detail[0]), 'green', end='')
-  cprint(detail[1], 'cyan')
+  cprint('{:.<15}: '.format(detail[0]), settings.detailsTitleColor, end='')
+  cprint(detail[1], settings.detailsContentColor)
 # Add newline
 print('')
 
 # Set up the table headers and borders first
-colors = ['red', 'red', 'yellow', 'blue', 'green', 'white', 'white']
 count = 0
 table_header = ['Sys Abend', 'User Abend', 'CC Err', 'Others', 'Good!', 'Total', 'Percentage']
 percentage = round(goodCount / jobCount * 100, 2)
@@ -92,9 +101,10 @@ dividers_len = 15 * len(table_header) + len(table_header) + 1
 
 # Print the top border
 divider_format = "{:-^{num}}"
-print(divider_format.format('', num = dividers_len))
+cprint(divider_format.format('', num = dividers_len), 'magenta')
 
 # Print the header itself
+colors = settings.tableColor
 row_format ="{:^15}"
 # Fenceposting...
 print('|', end='')
@@ -115,12 +125,13 @@ print('\n' + divider_format.format('', num = dividers_len), end='\n\n')
 
 # Print individual breakdown in a nice "bar" chart
 cprint('Breakdown:', 'white', attrs=['bold', 'underline'])
-cprint('{:<8}'.format('ABEND') + '{:|<{num}}'.format('', num=round((systemAbend + userAbend) / jobCount * 100)), 'red')
-cprint('{:<8}'.format('CC') + '{:|<{num}}'.format('', num=round(conditionCode / jobCount * 100)), 'yellow')
-cprint('{:<8}'.format('Others') + '{:|<{num}}'.format('', num=round(others / jobCount * 100)), 'blue')
-cprint('{:<8}'.format('Perfect') + '{:|<{num}}'.format('', num=round(goodCount / jobCount * 100)), 'green')
+cprint('{:<8}'.format('ABEND') + '{:|<{num}}'.format('', num=round((systemAbend + userAbend) / jobCount * 100)), settings.systemAbendColor)
+cprint('{:<8}'.format('CC') + '{:|<{num}}'.format('', num=round(conditionCode / jobCount * 100)), settings.conditionCodeColor)
+cprint('{:<8}'.format('Others') + '{:|<{num}}'.format('', num=round(others / jobCount * 100)), settings.othersErrColor)
+cprint('{:<8}'.format('Perfect') + '{:|<{num}}'.format('', num=round(goodCount / jobCount * 100)), settings.goodJobsColor)
 
-print("""
+# Cowsay, as usual. A tradition.
+cprint("""
 _______________ 
  Welcome back, 
  {:^13}
@@ -129,4 +140,5 @@ _______________
         \  (oo)____
            (__)    )\\
             ||--|| *
-""".format(name))
+""".format(name), settings.cowsayColor)
+
