@@ -16,23 +16,29 @@ allJobs = []
 
 # The CLI options are as follow:
 # --users | -u : Filter jobs by user. Default is wildcard search. Else, provide multiple values
+# --filter | -f : Filter jobs by error. Options: cc, sabend, uabend, others, good. Default to no filter. May select multiple values.
 # --start : Start date to search for jobs. Format DD-MM-YYYY
 # --end : End date to search for jobs. Format DD-MM-YYYY
-# -p : Bool to print detailed output to file. Usually a SEQ Dataset
+# -p : Bool to print detailed output to STDOUT or file. Usually a SEQ Dataset
 # --output | -o : Output file location and name. Will create the dataset if it does not exist and overwrite any existing files.
 
 # Examples:
 # ./job-stat.py : Returns all jobs stats in a table and bar chart form
 # ./job-stat.py -u Z07216 -u Z09999 --start 15-12-2020 -p -o Z07216.OUTPUT(JOBCMPL) : Returns all jobs by users
 # Z07216 and Z0999 on and after 15 Dec 2020 and output details to Z07216.OUTPUT(JOBCMPL)
+
 @click.command()
 @click.option('--users', '-u', multiple=True, default=['*'])
-@click.option('--start')
-@click.option('--end')
+@click.option('--filter', '-f', multiple=True)
+@click.option('--start', type=click.DateTime(formats=["%d-%m-%Y"]))
+@click.option('--end', type=click.DateTime(formats=["%d-%m-%Y"]))
 @click.option('-p', is_flag=True)
 @click.option('-o', '--output')
-def cli(users, start, end, p, output):
+def cli(users, filter, start, end, p, output):
   getJobs(users)
+  # If there are error filters, filter the results accordingly
+  if filter != None:
+    filterJobs(filter)
   displayStats()
 
 # Get all jobs based on user filter first. Date filter will be performed later.
@@ -41,10 +47,63 @@ def getJobs(filter):
   if (type(filter) == tuple):
     if (len(filter) != 0):
       for user in filter:
-        allJobs.extend(Jobs.list(owner=user))
+        jobsList = Jobs.list(owner=user)
+        if jobsList != None:
+          allJobs.extend(jobsList)
   else:
     # Else, the wildcard will be used
     allJobs = Jobs.list(owner='*')
+
+# Filter the jobs by error codes:
+def filterJobs(filters):
+  global allJobs
+  tempList = []
+
+  for f in filters:
+    if f == 'uabend':
+      tempList.extend(filter(userAbendFilter, allJobs))
+    elif f == 'sabend':
+      tempList.extend(filter(systemAbendFilter, allJobs))
+    elif f == 'cc':
+      # filtered = filter(ccErrFilter, allJobs)
+      tempList.extend(filter(ccErrFilter, allJobs))
+    elif f == 'others':
+      tempList.extend(filter(othersFilter, allJobs))
+    elif f == 'good':
+      tempList.extend(filter(goodFilter, allJobs))
+    else:
+      print(f'Filter {f} not valid. Removing all filters.')
+      return
+  
+  allJobs = tempList
+
+# All the separate filters used:
+def userAbendFilter(job):
+  if (job['status'] == 'ABEND' and job['return'][:1] == 'U'):
+    return True
+  return False
+
+def systemAbendFilter(job):
+  if (job['status'] == 'ABEND' and job['return'][:1] == 'S'):
+    return True
+  return False
+
+def ccErrFilter(job):
+  if (job['status'] == 'CC' and job['return'] != '0000'):
+    return True
+  return False
+
+def othersFilter(job):
+  code = job['status']
+  if (code != 'ABEND' and code != 'CC'):
+    return True
+  return False
+
+def goodFilter(job):
+  if (job['status'] == 'CC' and job['return'] == '0000'):
+    return True
+  return False
+
 
 def displayStats():
   # declare global variables and local ones
