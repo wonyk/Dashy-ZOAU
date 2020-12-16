@@ -11,8 +11,14 @@ import settings
 import subprocess
 import click
 
-# Set up the variables
+# Set up the global variables
 allJobs = []
+uabendList = []
+sabendList = []
+ccErrList = []
+othersList = []
+goodList = []
+
 
 # The CLI options are as follow:
 # --users | -u : Filter jobs by user. Default is wildcard search. Else, provide multiple values
@@ -40,7 +46,9 @@ def cli(users, filter, ds, output, no_banner):
   # If there are error filters, filter the results accordingly
   if len(filter) != 0:
     filterJobs(filter)
-  displayStats()
+
+  # Parse the data and display the remaining data
+  displayStats(filter)
 
 # Get all jobs based on user filter first. Date filter will be performed later.
 def getJobs(filter):
@@ -67,24 +75,28 @@ def printBanner():
 
 # Filter the jobs by error codes:
 def filterJobs(filters):
-  global allJobs
+  global allJobs, uabendList, sabendList, ccErrList, othersList, goodList
+
   tempList = []
 
   for f in filters:
     if f == 'uabend':
-      tempList.extend(filter(userAbendFilter, allJobs))
+      uabendList = list(filter(userAbendFilter, allJobs))
+      tempList.extend(uabendList)
     elif f == 'sabend':
-      tempList.extend(filter(systemAbendFilter, allJobs))
+      sabendList  = list(filter(systemAbendFilter, allJobs))
+      tempList.extend(sabendList)
     elif f == 'cc':
-      # filtered = filter(ccErrFilter, allJobs)
-      tempList.extend(filter(ccErrFilter, allJobs))
+      ccErrList = list(filter(ccErrFilter, allJobs))
+      tempList.extend(ccErrList)
     elif f == 'others':
-      tempList.extend(filter(othersFilter, allJobs))
+      othersList = list(filter(othersFilter, allJobs))
+      tempList.extend(othersList)
     elif f == 'good':
-      tempList.extend(filter(goodFilter, allJobs))
+      goodList = list(filter(goodFilter, allJobs))
+      tempList.extend(goodList)
     else:
-      print(f'Filter {f} not valid. Removing all filters.')
-      return
+      print(f'Filter {f} not valid. Skipping this.')
   
   allJobs = tempList
 
@@ -116,39 +128,50 @@ def goodFilter(job):
   return False
 
 
-def displayStats():
+def displayStats(filters):
   # declare global variables and local ones
-  global allJobs
+  global allJobs, uabendList, sabendList, ccErrList, othersList, goodList
   goodCount = 0
   userAbend = 0
   systemAbend = 0
   conditionCode = 0
   others = 0
 
+  # If filters are not enabled, we have to manually sieve them out
+  print(filters)
+  if filters != None and len(filters) == 0:
+    uabendList = list(filter(userAbendFilter, allJobs))
+    sabendList  = list(filter(systemAbendFilter, allJobs))
+    ccErrList = list(filter(ccErrFilter, allJobs))
+    othersList = list(filter(othersFilter, allJobs))
+    goodList = list(filter(goodFilter, allJobs))
+
   # Check for the various kind of errors to provide an overview
   # Perform various calculations
   jobCount = len(allJobs)
+  systemAbend = len(sabendList)
+  userAbend = len(uabendList)
+  conditionCode = len(ccErrList)
+  others = len(othersList)
+  goodCount = len(goodList)
 
-  for job in allJobs:
-    # Check Abend code
-    if (job['status'] == 'ABEND'):
-      if (job['return'][:1] == 'S'):
-        systemAbend += 1
-      elif (job['return'][:1] == 'U'):
-        userAbend += 1
-      else:
-        others += 1
-    # Check CC codes
-    elif (job['status'] == 'CC'):
-      if (job['return'] == '0000'):
-        goodCount += 1
-      else:
-        conditionCode += 1
-    else:
-      others += 1
-
-  # Get other system details
-  now = datetime.now()
+  # for job in allJobs:
+  #   # Check Abend code
+  #   if (job['status'] == 'ABEND'):
+  #     if (job['return'][:1] == 'S'):
+  #       systemAbend += 1
+  #     elif (job['return'][:1] == 'U'):
+  #       userAbend += 1
+  #     else:
+  #       others += 1
+  #   # Check CC codes
+  #   elif (job['status'] == 'CC'):
+  #     if (job['return'] == '0000'):
+  #       goodCount += 1
+  #     else:
+  #       conditionCode += 1
+  #   else:
+  #     others += 1
 
   # The following is used for printing:
   # Set up the table headers and borders first
