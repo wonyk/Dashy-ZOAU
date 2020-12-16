@@ -17,27 +17,28 @@ allJobs = []
 # The CLI options are as follow:
 # --users | -u : Filter jobs by user. Default is wildcard search. Else, provide multiple values
 # --filter | -f : Filter jobs by error. Options: cc, sabend, uabend, others, good. Default to no filter. May select multiple values.
-# --start : Start date to search for jobs. Format DD-MM-YYYY
-# --end : End date to search for jobs. Format DD-MM-YYYY
-# -p : Bool to print detailed output to STDOUT or file. Usually a SEQ Dataset
-# --output | -o : Output file location and name. Will create the dataset if it does not exist and overwrite any existing files.
+# -ds : Output Dataset name. Will create or overwrite as necessary
+# --output | -o : Output file location and name. Will create the file if it does not exist and overwrite any existing files.
+# --no-banner : Do not show banner
 
 # Examples:
 # ./job-stat.py : Returns all jobs stats in a table and bar chart form
-# ./job-stat.py -u Z07216 -u Z09999 --start 15-12-2020 -p -o Z07216.OUTPUT(JOBCMPL) : Returns all jobs by users
-# Z07216 and Z0999 on and after 15 Dec 2020 and output details to Z07216.OUTPUT(JOBCMPL)
+# ./job-stat.py -u Z07216 -u Z09999 -ds Z07216.OUTPUT(JOBCMPL) : Returns all jobs by users
+# Z07216 and Z0999 and output details to Z07216.OUTPUT(JOBCMPL)
 
 @click.command()
 @click.option('--users', '-u', multiple=True, default=['*'])
 @click.option('--filter', '-f', multiple=True)
-@click.option('--start', type=click.DateTime(formats=["%d-%m-%Y"]))
-@click.option('--end', type=click.DateTime(formats=["%d-%m-%Y"]))
-@click.option('-p', is_flag=True)
+@click.option('-ds')
 @click.option('-o', '--output')
-def cli(users, filter, start, end, p, output):
+@click.option('--no-banner', is_flag=True)
+def cli(users, filter, ds, output, no_banner):
+  if not no_banner:
+    printBanner()
+
   getJobs(users)
   # If there are error filters, filter the results accordingly
-  if filter != None:
+  if len(filter) != 0:
     filterJobs(filter)
   displayStats()
 
@@ -53,6 +54,16 @@ def getJobs(filter):
   else:
     # Else, the wildcard will be used
     allJobs = Jobs.list(owner='*')
+
+def printBanner():
+ cprint("""
+             __      __         _____ __        __ 
+            / /___  / /_       / ___// /_____ _/ /_
+       __  / / __ \/ __ \______\__ \/ __/ __ `/ __/
+      / /_/ / /_/ / /_/ /_____/__/ / /_/ /_/ / /_  
+      \____/\____/_.___/     /____/\__/\__,_/\__/  
+
+  """, settings.OSColor, attrs=['bold'])
 
 # Filter the jobs by error codes:
 def filterJobs(filters):
@@ -140,20 +151,10 @@ def displayStats():
   now = datetime.now()
 
   # The following is used for printing:
-  # Print banner
-  cprint("""
-             __      __         _____ __        __ 
-            / /___  / /_       / ___// /_____ _/ /_
-       __  / / __ \/ __ \______\__ \/ __/ __ `/ __/
-      / /_/ / /_/ / /_/ /_____/__/ / /_/ /_/ / /_  
-      \____/\____/_.___/     /____/\__/\__,_/\__/  
-
-  """, settings.OSColor, attrs=['bold'])
-
   # Set up the table headers and borders first
   count = 0
   table_header = ['Sys Abend', 'User Abend', 'CC Err', 'Others', 'Good!', 'Total', 'Percentage']
-  percentage = round(goodCount / jobCount * 100, 2)
+  percentage = 0 if jobCount == 0 else round(goodCount / jobCount * 100, 2)
   table_data = [systemAbend, userAbend, conditionCode, others, goodCount, jobCount, percentage]
   # Need to add the number of dividers
   dividers_len = 15 * len(table_header) + len(table_header) + 1
@@ -185,19 +186,19 @@ def displayStats():
   # Print individual breakdown in a nice "bar" chart
   chartDict = {
     'ABEND': {
-      'num': round((systemAbend + userAbend) / jobCount * 100),
+      'num': 0 if jobCount == 0 else round((systemAbend + userAbend) / jobCount * 100),
       'color': settings.systemAbendColor
     },
     'CC': {
-      'num': round(conditionCode / jobCount * 100),
+      'num': 0 if jobCount == 0 else round(conditionCode / jobCount * 100),
       'color': settings.conditionCodeColor
     },
     'Others': {
-      'num': round(others / jobCount * 100),
+      'num': 0 if jobCount == 0 else round(others / jobCount * 100),
       'color': settings.othersErrColor}
       ,
     'Perfect': {
-      'num': round(goodCount / jobCount * 100),
+      'num': 0 if jobCount == 0 else round(goodCount / jobCount * 100),
       'color': settings.goodJobsColor
     }
   }
