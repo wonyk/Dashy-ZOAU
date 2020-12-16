@@ -34,12 +34,16 @@ goodList = []
 # Z07216 and Z0999 and output details to Z07216.OUTPUT(JOBCMPL)
 
 @click.command()
-@click.option('--users', '-u', multiple=True, default=['*'])
-@click.option('--filter', '-f', multiple=True, type=click.Choice(['cc', 'sabend', 'uabend', 'others', 'good'], case_sensitive=False))
-@click.option('-ds')
-@click.option('-o', '--output', type=click.File('w'))
-@click.option('--no-banner', is_flag=True)
+@click.option('--users', '-u', multiple=True, default=['*'], help='filter users based on name', metavar='<USERS>')
+@click.option('--filter', '-f', multiple=True, type=click.Choice(['cc', 'sabend', 'uabend', 'others', 'good'], case_sensitive=False), help='filter by error codes')
+@click.option('-ds', help='output dataset name', metavar='<DS.NAME>')
+@click.option('-o', '--output', type=click.File('w'), help='output file name in USS')
+@click.option('--no-banner', is_flag=True, help='remove banner')
 def cli(users, filter, ds, output, no_banner):
+  """
+  A simple tool to obtain all the information you need.
+  """
+
   if not no_banner:
     printBanner()
 
