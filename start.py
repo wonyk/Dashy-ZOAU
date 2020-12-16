@@ -6,9 +6,9 @@
 # To fine tune job settings and color choices, please proceed to settings.py
 
 #Import the Z Open Automation Utilities libraries as well as other libraries
-from zoautil_py import Datasets, Jobs
+from zoautil_py import Jobs
 from datetime import datetime
-from termcolor import colored, cprint
+from termcolor import cprint
 import settings
 import subprocess
 
@@ -62,7 +62,7 @@ load = raw_uptime.split(':')[2][1:]
 
 # Get other system details
 now = datetime.now()
-name = str(subprocess.check_output(['whoami']))[2:-3]
+name = settings.name if settings.name != '' else str(subprocess.check_output(['whoami']))[2:-3]
 
 # The following is used for printing:
 # Print banner
