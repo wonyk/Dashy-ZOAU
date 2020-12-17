@@ -2,12 +2,12 @@
 
 # This python script is a simple tool to compile relevant job information using ZOAU
 # You may view this as a "pro" version of the ZOAU Job function as it provides more details
+# Note: All the colors shown are customisable. See settings.py for more information.
 
 #Import the Z Open Automation Utilities libraries as well as other libraries
-from zoautil_py import MVSCmd, Datasets, Jobs
-from zoautil_py.types import DDStatement
+from zoautil_py import Datasets, Jobs
 from datetime import datetime
-from termcolor import colored, cprint
+from termcolor import cprint
 import settings
 import subprocess
 import click
@@ -19,7 +19,6 @@ sabendList = []
 ccErrList = []
 othersList = []
 goodList = []
-
 
 # The CLI options are as follow:
 # --users | -u : Filter jobs by user. Default is wildcard search. Else, provide multiple values
@@ -48,14 +47,14 @@ def cli(users, filter, ds, output, no_banner):
     printBanner()
 
   getJobs(users)
-  # If there are error filters, filter the results accordingly
+  # If there are error code filters, filter the results accordingly
   if len(filter) != 0:
     filterJobs(filter)
 
   # Parse the data and display the remaining data
   displayStats(filter, ds, output)
 
-# Get all jobs based on user filter first. Date filter will be performed later.
+# Get all jobs based on user filter first.
 def getJobs(filter):
   global allJobs
   if (type(filter) == tuple):
@@ -142,7 +141,8 @@ def displayStats(filters, ds, output):
   conditionCode = 0
   others = 0
 
-  # If filters are not enabled, we have to manually sieve them out
+  # If filters are not enabled, we have to manually sieve them out.
+  # Else, we will skip this step and use whatever the filters sieved out for us in the filtering stage
   if filters != None and len(filters) == 0:
     uabendList = list(filter(userAbendFilter, allJobs))
     sabendList  = list(filter(systemAbendFilter, allJobs))
@@ -161,27 +161,28 @@ def displayStats(filters, ds, output):
 
   # The following is used for printing:
   # Set up the table headers and borders first
-  count = 0
   table_header = ['Sys Abend', 'User Abend', 'CC Err', 'Others', 'Good!', 'Total', 'Percentage']
+  # In case there are 0 jobs, there will not be a division error
   percentage = 0 if jobCount == 0 else round(goodCount / jobCount * 100, 2)
   table_data = [systemAbend, userAbend, conditionCode, others, goodCount, jobCount, percentage]
-  # Need to add the number of dividers
+  # Need to add the number of dividers to the space allocated to headers
   dividers_len = 15 * len(table_header) + len(table_header) + 1
 
   # Print the top border
   divider_format = "{:-^{num}}"
-  cprint(divider_format.format('', num = dividers_len), 'magenta')
+  cprint(divider_format.format('', num = dividers_len), settings.tableBorderColor)
 
   # Print the header itself
   colors = settings.tableColor
   row_format ="{:^15}"
   # Fenceposting...
+  count = 0
   print('|', end='')
   for header in table_header:
     cprint(row_format.format(header), colors[count], end='')
     cprint('|', colors[count], end='')
     count += 1
-  print('\n' + divider_format.format('', num = dividers_len))
+  cprint('\n' + divider_format.format('', num = dividers_len), settings.tableBorderColor)
   print('|', end='')
 
   # Print the data row, again using fencepost technique
@@ -190,7 +191,7 @@ def displayStats(filters, ds, output):
     cprint(row_format.format(data), colors[count], end='')
     cprint('|', colors[count], end='')
     count += 1
-  print('\n' + divider_format.format('', num = dividers_len), end='\n\n')
+  cprint('\n' + divider_format.format('', num = dividers_len), settings.tableBorderColor, end='\n\n')
 
   # Print individual breakdown in a nice "bar" chart
   chartDict = {
@@ -216,7 +217,7 @@ def displayStats(filters, ds, output):
   for category in chartDict:
     cprint('{:<8}'.format(category) + '{:|<{num}} {num}%'.format('', num=chartDict[category]['num']), chartDict[category]['color'])
 
-  # Handles the writing to DS and/or another file in USS
+  # Handles the writing to DS and/or another file in USS if applicable
   if (output != None or ds != None):
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
@@ -244,12 +245,16 @@ def displayStats(filters, ds, output):
     
     if (ds != None):
       # Check if dataset exist and delete it if it exist. Then create a new dataset of the given name
+      print('\n\rWriting to dataset... ', end='')
       if Datasets.exists(ds):
         Datasets.delete(ds)
       Datasets.create(ds, 'SEQ')
-      Datasets.write(ds,report_output)
-      print(f'\nDataset {ds} written successfully!')
-
+      rc = Datasets.write(ds,report_output)
+      if rc == 0:
+        print('Done!')
+        print(f'\nDataset {ds} written successfully!')
+      else:
+        printf('Something went wrong when writing to the dataset. PLease try again.')
 
 if __name__ == '__main__':
   cli()
