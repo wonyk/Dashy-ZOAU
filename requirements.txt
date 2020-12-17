@@ -1,0 +1,4 @@
+click==7.1.2
+termcolor==1.1.0
+texttable==1.6.3
+zos-util==1.0.0
