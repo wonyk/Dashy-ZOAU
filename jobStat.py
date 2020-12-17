@@ -9,7 +9,6 @@ from zoautil_py import Datasets, Jobs
 from datetime import datetime
 from termcolor import cprint
 import settings
-import subprocess
 import click
 
 # Set up the global variables

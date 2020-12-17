@@ -13,6 +13,7 @@ othersErrColor = 'cyan'
 goodJobsColor = 'green'
 totalCountColor = 'white'
 percentageColor = 'white'
+tableBorderColor = 'white'
 cowsayColor = 'cyan'
 
 # Do not edit this list. Instead, edit the colors above for the respective components
