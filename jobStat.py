@@ -41,7 +41,10 @@ def cli(users, filter, ds, output, no_banner):
   """
   A simple tool to obtain all the information you need.
   """
+  export_cli(users, filter, ds, output, no_banner)
 
+
+def export_cli(users, filter, ds, output, no_banner):
   if not no_banner:
     printBanner()
 
@@ -52,6 +55,7 @@ def cli(users, filter, ds, output, no_banner):
 
   # Parse the data and display the remaining data
   displayStats(filter, ds, output)
+
 
 # Get all jobs based on user filter first.
 def getJobs(filter):
@@ -240,7 +244,7 @@ def displayStats(filters, ds, output):
     
     if (output != None):
       output.write(report_output)
-      print(f'\nFile "{output.name}" written successfully!', end='')
+      print(f'\nFile "{output.name}" written successfully!')
     
     if (ds != None):
       # Check if dataset exist and delete it if it exist. Then create a new dataset of the given name

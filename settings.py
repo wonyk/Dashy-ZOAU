@@ -22,7 +22,7 @@ tableColor = [systemAbendColor, userAbendColor, conditionCodeColor, othersErrCol
 # Jobs configurations
 # Options:
 # 1. '*' - All jobs from every user on the system (wildcard)
-# 2. ['Z07216', 'Z99999'] - jobs under certain users only (Z07216 and Z99999 here)
+# 2. ('Z07216', 'Z99999') - jobs under certain users only (Z07216 and Z99999 here)
 # Any other invalid settings default to '*'
 job_scope = '*'
 

@@ -8,18 +8,9 @@
 #Import other libraries
 from datetime import datetime
 from termcolor import cprint
+from jobStat import export_cli
 import settings
 import subprocess
-
-# Call the CLI to get the information
-# Create the CLI parameters
-para = ['jobStat.py', '--no-banner']
-if type(settings.job_scope) == list:
-  for j in settings.job_scope:
-    para.append('-u')
-    para.append(j)
-
-info = subprocess.check_output(para)
 
 # Sample Format of raw_uptime:
 #  8 day(s), 13:28,  11 users,  load average: 0.00, 0.00, 0.00
@@ -62,8 +53,8 @@ for detail in detailsDict.items():
 # Add newline
 print('')
 
-# Print the information previously retrieved
-print(info.decode('utf-8'), end='')
+# Print the information by calling the jobStat CLI
+export_cli(settings.job_scope, (), None, None, True)
 
 # Cowsay, as usual. A tradition.
 cprint("""
