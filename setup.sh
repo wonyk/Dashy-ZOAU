@@ -12,6 +12,7 @@ current_dir=$(pwd)
 if [ $script_dir = '.' ]; then
   script_dir="$current_dir"
 fi
+
 # Check if requirements.txt exists
 if [[ -e "$script_dir/$file" ]] && [[ -s "$script_dir/$file" ]]; then
   echo "Downloading pip modules"
@@ -27,9 +28,14 @@ if [[ -e "$script_dir/$file" ]] && [[ -s "$script_dir/$file" ]]; then
 
   if [[ "$addBool" =~ ^y(es)?$ ]]; then
     echo "Add to Z/OS Shell (z) or bash (b)?"
-    read -n 1 shell
+    read shell
 
-
+    # Loop until input is z or b
+    while [[ "$shell" != z && "$shell" != b ]]; do
+      echo "Invalid option. Add to Z/OS Shell (z) or bash (b)?"
+      read shell
+    done
+  
     if [[ "$shell" == z ]]; then
       echo "Adding banner to Z/OS shell"
       echo "$script_dir/start.py" >> ~/.profile
@@ -39,10 +45,10 @@ if [[ -e "$script_dir/$file" ]] && [[ -s "$script_dir/$file" ]]; then
       echo "bash" >> ~/.profile
       echo "$script_dir/start.py" >> ~/.bashrc
     fi
+    printf "Customise your start-up banner in settings.py\n"
   fi
 
   printf "Set up is complete.\n\n"
-  printf "Customise your start-up banner in settings.py\n\n"
   echo "Find out more about jobStat using jobStat.py --help"
 else
   echo "Stopping... Some files are missing."
