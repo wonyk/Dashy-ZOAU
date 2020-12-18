@@ -29,7 +29,7 @@ Also, you require Python 3.7 and above.
 git clone https://github.com/wonyk/Dashy-ZOAU.git
 
 # If you do not have git and is on MtM2020, you may copy the folder from my home directory:
-cp -R /z/z07216/Dashy-ZOAU ~
+cp -R /z/z07216/Dashy-ZOAU/ ~
 
 cd Dashy-ZOAU/
 chmod +x setup.sh
