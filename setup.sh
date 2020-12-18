@@ -2,7 +2,8 @@
 
 # This script performs the basic set-up to ensure everything runs well and good
 # Ensure you have ZOAU installed in USS: https://www.ibm.com/support/knowledgecenter/en/SSKFYE_1.0.1/install.html
-# We hope
+# In case this script does not run well, you may perform the set-up manually by first installing the required pip3
+# modules in requirements.txt. Next, you can manually add start.py to your .profile or .bashrc.
 
 echo "Checking required files"
 file="requirements.txt"

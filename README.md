@@ -6,7 +6,7 @@ Dashy-ZOAU is a project for Master the Mainframe 2020 Grand Challenge.
 
 Since the challenge description mentions about creating a dashboard, I have decided to use IBM's [Z Open Automation Utilities 1.0.0](https://www.ibm.com/support/knowledgecenter/en/SSKFYE_1.0.1/welcome_zoautil.html) (ZOAU).
 
-It is available in Shell, Java and Python and I have decided to use Python to make use of other libraries too using pip3.
+I have decided to use Python to incorporate other pip3 libraries.
 
 ## Functions
 It contains 2 main elements - A banner to be displayed when users login to Unix System Services (USS) and __jobStat__ - a tool to compile and display relevant Jobs information ran in the mainframe. 
@@ -25,11 +25,11 @@ Also, you require Python 3.7 and above.
 
 ## Setup
 ```
+# You may clone this repo to your local home directory if git is installed.
 git clone https://github.com/wonyk/Dashy-ZOAU.git
 
 # If you do not have git and is on MtM2020, you may copy the folder from my home directory:
-# cp /z/z07216/grand_chal ~
-# mv ~/grand_chal Dashy-ZOAU
+cp -R /z/z07216/Dashy-ZOAU ~
 
 cd Dashy-ZOAU/
 chmod +x setup.sh
@@ -61,3 +61,6 @@ I would like to thank IBM for their wonderful [Master the Mainframe 2020](https:
 The crash course on USS, REXX, COBOL, Bash and Python scripting as well as LXSS, Zowe CLI and Ansible are eye-opening and truly fun to tinkle with.
 
 Also, thanks to the various online guides which made this project possible.
+
+## Licence
+This project is licenced under the [MIT](LICENSE) license.

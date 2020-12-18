@@ -40,6 +40,12 @@ goodList = []
 def cli(users, filter, ds, output, no_banner):
   """
   A simple tool to obtain all the information you need.
+
+  \b
+  Example usage: 
+    ./job-stat.py
+    ./job-stat.py -u Z07216 -u Z09999 -ds Z07216.OUTPUT(JOBCMPL)
+    ./jobStat.py -f sabend -f uabend -o stats.txt
   """
   export_cli(users, filter, ds, output, no_banner)
 
