@@ -27,9 +27,9 @@ goodList = []
 # --no-banner : Do not show banner
 
 # Examples:
-# ./job-stat.py : Returns all jobs stats in a table and bar chart form
-# ./job-stat.py -u Z07216 -u Z09999 -ds Z07216.OUTPUT(JOBCMPL) : Returns all jobs by users
-# Z07216 and Z0999 and output details to Z07216.OUTPUT(JOBCMPL)
+# ./jobStat.py : Returns all jobs stats in a table and bar chart form
+# ./jobStat.py -u Z07216 -u Z09999 -ds Z07216.OUTPUT(JOBSTAT) : Returns all jobs by users
+# Z07216 and Z0999 and output details to Z07216.OUTPUT(JOBSTAT)
 
 @click.command()
 @click.option('--users', '-u', multiple=True, default=['*'], help='filter users based on name', metavar='<USERS>')
@@ -43,8 +43,8 @@ def cli(users, filter, ds, output, no_banner):
 
   \b
   Example usage: 
-    ./job-stat.py
-    ./job-stat.py -u Z07216 -u Z09999 -ds Z07216.OUTPUT(JOBCMPL)
+    ./jobStat.py
+    ./jobStat.py -u Z07216 -u Z09999 -ds Z07216.OUTPUT.JOBSTAT
     ./jobStat.py -f sabend -f uabend -o stats.txt
   """
   export_cli(users, filter, ds, output, no_banner)

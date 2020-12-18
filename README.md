@@ -50,9 +50,9 @@ To use jobStat CLI, here are the various options:
 # --no-banner : Do not show banner
 
 # Examples:
-./job-stat.py  # Returns all jobs stats in a table and bar chart form
-./job-stat.py -u Z07216 -u Z09999 -ds Z07216.OUTPUT(JOBCMPL) -o jobs.txt
-# Returns all jobs by users Z07216 and Z0999 and output details to Z07216.OUTPUT(JOBCMPL) and jobs.txt in USS
+./jobStat.py  # Returns all jobs stats in a table and bar chart form
+./jobStat.py -u Z07216 -u Z09999 -ds Z07216.OUTPUT(JOBSTAT) -o jobs.txt
+# Returns all jobs by users Z07216 and Z0999 and output details to Z07216.OUTPUT(JOBSTAT) and jobs.txt in USS
 ```
 
 ## Acknowledgements
