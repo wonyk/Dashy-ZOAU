@@ -28,8 +28,8 @@ goodList = []
 
 # Examples:
 # ./jobStat.py : Returns all jobs stats in a table and bar chart form
-# ./jobStat.py -u Z07216 -u Z09999 -ds Z07216.OUTPUT(JOBSTAT) : Returns all jobs by users
-# Z07216 and Z0999 and output details to Z07216.OUTPUT(JOBSTAT)
+# ./jobStat.py -u Z07216 -u Z09999 -ds Z07216.OUTPUT.JOBSTAT : Returns all jobs by users
+# Z07216 and Z09999 and output details to Z07216.OUTPUT.JOBSTAT
 
 @click.command()
 @click.option('--users', '-u', multiple=True, default=['*'], help='filter users based on name', metavar='<USERS>')
