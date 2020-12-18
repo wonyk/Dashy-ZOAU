@@ -1,5 +1,5 @@
 # Dashy-ZOAU
-![Sample Login Banner Image](login-banner.png)
+![Sample Login Banner Image](img/login-banner.png)
 
 ## About
 Dashy-ZOAU is a project for Master the Mainframe 2020 Grand Challenge.
@@ -19,7 +19,7 @@ Also, we do not forget the cow and its greetings whenever you login.
 ## Prerequisites
 You will require an account to login to IBM's USS. Next, you will need this folder.
 
-You may copy this folder from /z/z07216/grand_chal to your local home directory.
+You may copy this folder from /z/z07216/Dashy-ZOAU to your local home directory.
 
 Also, you require Python 3.7 and above.
 
@@ -37,6 +37,8 @@ chmod +x setup.sh
 # Run the setup script
 ./setup.sh
 ```
+For other related matters concerning setup, you might wish to read up the comments available at the top of every file.
+Those comments document the functionality of each file and some troubleshooting instructions.
 
 ## Customising
 You may customise the colors and filter the jobs based on users using the configuration file `settings.py`. Follow the instructions to obtain your preferred customisations.
@@ -64,3 +66,6 @@ Also, thanks to the various online guides which made this project possible.
 
 ## Licence
 This project is licenced under the [MIT](LICENSE) license.
+
+## Submission Poster
+![MtM 2020 Grand Challenge Submission Poster](img/Dashy-ZOAU.png)

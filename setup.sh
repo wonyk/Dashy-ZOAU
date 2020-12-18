@@ -7,11 +7,7 @@
 
 echo "Checking required files"
 file="requirements.txt"
-script_dir=$(dirname "$BASH_SOURCE")
-current_dir=$(pwd)
-if [ $script_dir = '.' ]; then
-  script_dir="$current_dir"
-fi
+script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 ; pwd -P )"
 
 # Check if requirements.txt exists
 if [[ -e "$script_dir/$file" ]] && [[ -s "$script_dir/$file" ]]; then
